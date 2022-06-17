@@ -1,0 +1,381 @@
+type: edu
+custom_name: stage4
+files:
+- name: src/calculator/Main.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.Scanner;
+
+    public class Main {
+
+        public static void main(String[] args) {
+            Scanner scanner = new Scanner(System.in);
+            // put your code here
+        }
+    }
+  learner_created: false
+- name: test/Test.java
+  visible: false
+  text: |
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testcase.TestCase;
+    import org.hyperskill.hstest.testing.TestedProgram;
+
+    import java.util.Arrays;
+    import java.util.List;
+
+
+    public class Test extends StageTest<String> {
+
+        @Override
+        public List<TestCase<String>> generate() {
+            return Arrays.asList(
+                    new TestCase<String>().setDynamicTesting(() -> {
+
+                        TestedProgram main = new TestedProgram();
+
+                        // The base test suit that checks if the program correctly responses to the commands and can stop
+                        main.start();
+
+
+                        // test of /help
+                        String output = main.execute("/help").trim();
+                        if (output.length() < 4) {
+                            return CheckResult.wrong("It seems like there was no any \"help\" message.");
+                        }
+
+                        // input empty string
+                        output = main.execute("");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Incorrect response to an empty string. " +
+                                    "The program should not print anything.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // The test suit that checks basic functionality of this step
+                        main.start();
+
+                        // sum of positive numbers
+                        String output = main.execute("7 + 1 + 4").trim();
+                        if (!output.equals("12")) {
+                            return CheckResult.wrong("The program cannot sum more than two numbers.");
+                        }
+
+                        // sum mixed numbers & positive answer
+                        output = main.execute("23 - 17 - 4").trim();
+                        if (!output.equals("2")) {
+                            return CheckResult.wrong("Incorrect sum of positive and negative numbers.");
+                        }
+
+                        // sum mixed numbers & negative answer
+                        output = main.execute("23 - 17 - 13").trim();
+                        if (!output.equals("-7")) {
+                            return CheckResult.wrong("Incorrect sum of positive and negative numbers.");
+                        }
+
+                        // sum of negative numbers
+                        output = main.execute("-9 - 4 - 21").trim();
+                        if (!output.equals("-34")) {
+                            return CheckResult.wrong("Incorrect sum of three negative numbers.");
+                        }
+
+                        // testing a big amount of numbers
+                        output = main.execute("33 + 21 + 11 + 49 - 32 - 9 + 1 - 80 + 4").trim();
+                        if (!output.equals("-2")) {
+                            return CheckResult.wrong("The program cannot process a large number of numbers.");
+                        }
+
+                        // input one number
+                        output = main.execute("101").trim();
+                        if (!output.equals("101")) {
+                            return CheckResult.wrong("The program printed not the same number that was entered.");
+                        }
+
+                        // input one negative number
+                        output = main.execute("-302").trim();
+                        if (!output.equals("-302")) {
+                            return CheckResult.wrong("The program printed not the same number that was entered.");
+                        }
+
+                        // input empty string
+                        output = main.execute("");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Incorrect response to an empty string. " +
+                                    "The program should not print anything.");
+                        }
+
+                        // the sum of the numbers is zero
+                        output = main.execute("10 - 7 - 3").trim();
+                        if (!output.equals("0")) {
+                            return CheckResult.wrong("The problem when sum is equal to 0 has occurred.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // The test suit that checks the usage of several operators
+                        main.start();
+
+                        // test of odd number of minus signs
+                        String output = main.execute("8 --- 3").trim();
+                        if (!output.equals("5")) {
+                            return CheckResult.wrong("The program cannot process several minus signs.");
+                        }
+
+                        // test of even number of minus signs
+                        output = main.execute("8 -- 3").trim();
+                        if (!output.equals("11")) {
+                            return CheckResult.wrong("The program not correctly processes even number of minus signs.");
+                        }
+
+                        // test of several plus signs
+                        output = main.execute("32 ++++++++++++++ 4").trim();
+                        if (!output.equals("36")) {
+                            return CheckResult.wrong("The program cannot process several plus signs.");
+                        }
+
+                        // test of multiple operations
+                        output = main.execute("5 --- 2 ++++++ 4 -- 2 ---- 1").trim();
+                        if (!output.equals("10")) {
+                            return CheckResult.wrong("The program cannot process multiple operations with several operators.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    })
+            );
+        }
+    }
+  learner_created: false
+- name: src/calculator/operations/AdditionOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class AdditionOperation implements Operation {
+        @Override
+        public int calculate(String[] args) {
+            int sum = 0;
+
+            for (String arg : args) {
+                sum += Integer.parseInt(arg);
+            }
+
+            return sum;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/Operation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public interface Operation {
+        int calculate(String[] args);
+    }
+  learner_created: true
+- name: src/calculator/operations/DivisionOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class DivisionOperation implements Operation {
+        @Override
+        public int calculate(String[] args) {
+            int quotient = args.length == 0 ? 0 : Integer.parseInt(args[0]);
+
+            for (int i = 1; i < args.length; i++) {
+                quotient /= Integer.parseInt(args[i]);
+            }
+
+            return quotient;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/ModuloOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class ModuloOperation implements Operation {
+        @Override
+        public int calculate(String[] args) {
+            int remainder = args.length == 0 ? 0 : Integer.parseInt(args[0]);
+
+            for (int i = 1; i < args.length; i++) {
+                remainder %= Integer.parseInt(args[i]);
+            }
+
+            return remainder;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/SubtractionOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class SubtractionOperation implements Operation {
+
+        @Override
+        public int calculate(String[] args) {
+            int sum = Integer.parseInt(args[0]);
+
+            for (int i = 1; i < args.length; i++) {
+                sum -= Integer.parseInt(args[i]);
+            }
+
+            return sum;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/MultiplicationOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class MultiplicationOperation implements Operation {
+        @Override
+        public int calculate(String[] args) {
+            int result = args.length == 0 ? 0 : 1;
+            for (String arg : args) {
+                result *= Integer.parseInt(arg);
+            }
+
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/Operator.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public enum Operator {
+        ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION, MODULO
+    }
+  learner_created: true
+- name: src/calculator/Calculator.java
+  visible: true
+  text: |
+    package calculator;
+
+    import calculator.operations.*;
+
+    import java.util.Scanner;
+
+    public class Calculator {
+        private Operation operation;
+        private final Scanner scanner;
+        private String[] inputs;
+
+        Calculator() {
+            scanner = new Scanner(System.in);
+            Operator defaultOperator = selectOperator("+");
+            setOperation(defaultOperator);
+
+        }
+
+        public boolean processData() {
+            inputs = scanner.nextLine().split(" ");
+            for (String arg : inputs) {
+                arg = arg.trim();
+                if (arg.equalsIgnoreCase("/exit")) {
+                    return false;
+                } else if (arg.equalsIgnoreCase("/help")) {
+                    System.out.println("The program calculates the sum of numbers");
+                    inputs = new String[0];
+                    return true;
+                }
+            }
+            return true;
+        }
+
+        public void executeStrategy() {
+            while (processData()) {
+                if (operation != null && inputs.length > 0 && !inputs[0].trim().equals("")) {
+                    int calculation = operation.calculate(inputs);
+                    System.out.println(calculation);
+                }
+            }
+            System.out.println("Bye!");
+        }
+
+        public Operator selectOperator(String selection) {
+            selection = selection.toUpperCase().trim();
+
+            switch (selection) {
+                case "+":
+                    return Operator.ADDITION;
+                case "-":
+                    return Operator.SUBTRACTION;
+                case "*":
+                    return Operator.MULTIPLICATION;
+                case "/":
+                    return Operator.DIVISION;
+                case "%":
+                    return Operator.MODULO;
+            }
+
+            return null;
+        }
+
+        private void setOperation(Operator operator) {
+            if (operator != null) {
+                switch (operator) {
+                    case ADDITION:
+                        operation = new AdditionOperation();
+                        break;
+                    case SUBTRACTION:
+                        operation = new SubtractionOperation();
+                        break;
+                    case MULTIPLICATION:
+                        operation = new MultiplicationOperation();
+                        break;
+                    case DIVISION:
+                        operation = new DivisionOperation();
+                        break;
+                    case MODULO:
+                        operation = new ModuloOperation();
+                        break;
+                }
+            }
+        }
+    }
+  learner_created: true
+- name: src/calculator/InputHandler.java
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/5319#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Wed, 15 Jun 2022 01:16:01 UTC
+record: 4

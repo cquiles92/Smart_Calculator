@@ -1,0 +1,566 @@
+type: edu
+custom_name: Error!
+files:
+- name: src/calculator/Main.java
+  visible: true
+  text: |
+    package calculator;
+
+    import java.util.Scanner;
+
+    public class Main {
+
+        public static void main(String[] args) {
+            Scanner scanner = new Scanner(System.in);
+            // put your code here
+        }
+    }
+  learner_created: false
+- name: test/Test.java
+  visible: false
+  text: |
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testcase.TestCase;
+    import org.hyperskill.hstest.testing.TestedProgram;
+
+    import java.util.Arrays;
+    import java.util.List;
+
+    public class Test extends StageTest<String> {
+        @Override
+        public List<TestCase<String>> generate() {
+            return Arrays.asList(
+                    new TestCase<String>().setDynamicTesting(() -> {
+
+                        TestedProgram main = new TestedProgram();
+
+                        // The base test suit that checks if the program correctly responses to the commands and can stop
+                        main.start();
+
+                        // test of /help
+                        String output = main.execute("/help").trim();
+                        if (output.length() < 4) {
+                            return CheckResult.wrong("It seems like there was no any \"help\" message.");
+                        }
+
+                        // input empty string
+                        output = main.execute("");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Incorrect response to an empty string. " +
+                                    "The program should not print anything.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // The test suit that checks functionality of the previous steps
+                        main.start();
+
+                        // sum of positive numbers
+                        String output = main.execute("7 + 1 + 4").trim();
+                        if (!output.equals("12")) {
+                            return CheckResult.wrong("The program cannot sum more than two numbers.");
+                        }
+
+                        // sum mixed numbers & negative answer
+                        output = main.execute("23 - 17 - 13").trim();
+                        if (!output.equals("-7")) {
+                            return CheckResult.wrong("Incorrect sum of positive and negative numbers.");
+                        }
+
+                        // testing a big amount of numbers
+                        output = main.execute("33 + 21 + 11 + 49 - 32 - 9 + 1 - 80 + 4").trim();
+                        if (!output.equals("-2")) {
+                            return CheckResult.wrong("The program cannot process a large number of numbers.");
+                        }
+
+                        // input one number
+                        output = main.execute("101").trim();
+                        if (!output.equals("101")) {
+                            return CheckResult.wrong("The program printed not the same number that was entered " +
+                                    "(when one number is entered it is a valid expression).");
+                        }
+
+                        // input one negative number
+                        output = main.execute("-302").trim();
+                        if (!output.equals("-302")) {
+                            return CheckResult.wrong("The program printed not the same number that was entered.");
+                        }
+
+                        // input empty string
+                        output = main.execute("");
+                        if (output.length() != 0) {
+                            return CheckResult.wrong("Incorrect response to an empty string. " +
+                                    "The program should not print anything.");
+                        }
+
+                        // the sum of the numbers is zero
+                        output = main.execute("10 - 7 - 3").trim();
+                        if (!output.equals("0")) {
+                            return CheckResult.wrong("The problem when sum is equal to 0 has occurred.");
+                        }
+
+                        // test of multiple operations
+                        output = main.execute("5 --- 2 ++++++ 4 -- 2 ---- 1").trim();
+                        if (!output.equals("10")) {
+                            return CheckResult.wrong("The program cannot process multiple operations with several operators.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // A set of positive tests for this step
+                        main.start();
+
+                        // tests of invalid expressions
+                        String output = main.execute("123+").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The program cannot process an invalid expression.");
+                        }
+
+                        output = main.execute("321-").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The program cannot process an invalid expression.");
+                        }
+
+                        // input one number with plus in front of it
+                        output = main.execute("+7").trim();
+                        if (!output.equals("7")) {
+                            return CheckResult.wrong("The program not correctly processes useless plus sign.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    }),
+                    new TestCase<String>().setDynamicTesting(() -> {
+                        TestedProgram main = new TestedProgram();
+
+                        // A set of negative tests for this step
+                        main.start();
+
+                        // test of entering not numbers
+                        String output = main.execute("abc").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The program should print \"Invalid expression\" " +
+                                    "when not a numbers are entered");
+                        }
+
+                        output = main.execute("one + two + three").trim().toLowerCase();
+                        if (!output.startsWith("invalid")) {
+                            return CheckResult.wrong("The program should print \"Invalid expression\" " +
+                                    "when not a numbers are entered.");
+                        }
+
+                        // test of a nonexistent command
+                        output = main.execute("/go").trim().toLowerCase();
+                        if (!output.startsWith("unknown")) {
+                            return CheckResult.wrong("The program should print \"Unknown command\" " +
+                                    "when a nonexistent command is entered.");
+                        }
+
+                        // test of /exit
+                        output = main.execute("/exit").trim().toLowerCase();
+                        if (!output.startsWith("bye")) {
+                            return CheckResult.wrong("Your program didn't print \"bye\" after entering \"/exit\".");
+                        }
+
+                        return new CheckResult(main.isFinished(), "Your program should exit after entering \"/exit\".");
+                    })
+            );
+        }
+    }
+  learner_created: false
+- name: src/calculator/operations/AdditionOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class AdditionOperation implements Operation {
+        @Override
+        public int calculate(int... args) {
+            int sum = 0;
+
+            for (int arg : args) {
+                sum += arg;
+            }
+
+            return sum;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/Operation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public interface Operation {
+        int calculate(int... args);
+    }
+  learner_created: true
+- name: src/calculator/InputHandler.java
+  visible: true
+  text: |-
+    package calculator;
+
+    import calculator.operations.Operator;
+
+    import java.util.Stack;
+    import java.util.regex.Matcher;
+    import java.util.regex.Pattern;
+
+    public class InputHandler {
+        public InputHandler() {
+        }
+
+        static String cleanInput(String input) {
+            //create spaces between parenthesis if not already there
+            //left
+            Pattern pattern = Pattern.compile("[(]");
+            Matcher matcher = pattern.matcher(input);
+            input = matcher.replaceAll("( ");
+
+            //right
+            pattern = Pattern.compile("[)]");
+            matcher = pattern.matcher(input);
+            input = matcher.replaceAll(" )");
+
+            //clean extra spaces
+            pattern = Pattern.compile("\\s+");
+            matcher = pattern.matcher(input);
+            input = matcher.replaceAll(" ");
+
+            //clean extra operators
+            StringBuilder copy = new StringBuilder(input);
+            pattern = Pattern.compile("[-+*/]{2,}");
+            matcher = pattern.matcher(input);
+
+            while (matcher.find()) {
+                String token = input.substring(matcher.start(), matcher.end());
+                String singleChar;
+
+                //grab the symbol or if the symbol == '-'
+                //if there are even number of '-' change into '+'
+                if (input.charAt(matcher.start()) == '-') {
+                    if (token.length() % 2 == 0) {
+                        singleChar = "+";
+                    } else {
+                        singleChar = "-";
+                    }
+                } else {
+                    singleChar = token.substring(0, 1);
+                }
+                int indexStart = copy.indexOf(token);
+                int indexEnd = indexStart + token.length();
+                copy.replace(indexStart, indexEnd, singleChar);
+            }
+            return copy.toString();
+        }
+
+        boolean isOperator(String input) {
+            return input.matches("[+/*^-]");
+        }
+
+        boolean isOperand(String input) {
+            return input.matches("[-+]?[\\da-zA-Z]+");
+        }
+
+        String shuntingYardAlgorithm(String input) {
+            StringBuilder rpnInput = new StringBuilder();
+            Stack<String> operatorStack = new Stack<String>();
+
+            String[] tokens = input.split(" ");
+            for (String token : tokens) {
+                //is operand
+                if (isOperand(token)) {
+                    rpnInput.append(token).append(" ");
+                } //left parenthesis
+                else if (token.equals("(")) {
+                    operatorStack.push(token);
+                } //right parenthesis
+                else if (token.equals(")")) {
+                    while (!operatorStack.peek().equals("(")) {
+                        rpnInput.append(operatorStack.pop()).append(" ");
+                    }
+                    //pop left parenthesis out
+                    operatorStack.pop();
+                } else {
+                    //operators below
+                    //if stack is not empty or there is no left parenthesis at top of stack
+                    //check precedence and pop if necessary
+                    while (!operatorStack.isEmpty() && isOperator(operatorStack.peek())
+                           && selectOperator(token).getPrecedence() <= selectOperator(operatorStack.peek()).getPrecedence()) {
+                        rpnInput.append(operatorStack.pop()).append(" ");
+                    }
+                    operatorStack.push(token);
+                }
+            }
+
+            while (!operatorStack.isEmpty()) {
+                rpnInput.append(operatorStack.pop()).append(" ");
+            }
+
+            return rpnInput.toString();
+        }
+
+        Operator selectOperator(String selection) {
+            selection = selection.toUpperCase().trim();
+
+            switch (selection) {
+                case "+":
+                    return Operator.ADDITION;
+                case "-":
+                    return Operator.SUBTRACTION;
+                case "*":
+                    return Operator.MULTIPLICATION;
+                case "/":
+                    return Operator.DIVISION;
+                case "%":
+                    return Operator.MODULO;
+            }
+
+            return null;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/DivisionOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class DivisionOperation implements Operation {
+        @Override
+        public int calculate(int... args) {
+            int quotient = args.length == 0 ? 0 : args[0];
+
+            for (int i = 1; i < args.length; i++) {
+                quotient /= args[i];
+            }
+
+            return quotient;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/ModuloOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class ModuloOperation implements Operation {
+        @Override
+        public int calculate(int... args) {
+            int remainder = args.length == 0 ? 0 : args[0];
+
+            for (int i = 1; i < args.length; i++) {
+                remainder %= args[i];
+            }
+
+            return remainder;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/SubtractionOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class SubtractionOperation implements Operation {
+
+        @Override
+        public int calculate(int... args) {
+            int sum = args[0];
+
+            for (int i = 1; i < args.length; i++) {
+                sum -= args[i];
+            }
+
+            return sum;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/MultiplicationOperation.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public class MultiplicationOperation implements Operation {
+        @Override
+        public int calculate(int... args) {
+            int result = args.length == 0 ? 0 : 1;
+            for (int arg : args) {
+                result *= arg;
+            }
+
+            return result;
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/Operator.java
+  visible: true
+  text: |
+    package calculator.operations;
+
+    public enum Operator {
+        ADDITION(1), SUBTRACTION(1), MULTIPLICATION(2), DIVISION(2), MODULO(2);
+
+        private final int precedence;
+
+        private Operator(int precedence) {
+            this.precedence = precedence;
+        }
+
+        public int getPrecedence() {
+            return precedence;
+        }
+    }
+  learner_created: true
+- name: src/calculator/Calculator.java
+  visible: true
+  text: |
+    package calculator;
+
+    import calculator.operations.*;
+
+    import java.util.Scanner;
+    import java.util.Stack;
+
+    public class Calculator {
+        private final Scanner scanner;
+        private final InputHandler inputHandler = new InputHandler();
+        private Operation operation;
+        private boolean quitProgram;
+
+        Calculator() {
+            scanner = new Scanner(System.in);
+        }
+
+        public void mainProgram() {
+            quitProgram = false;
+            while (!quitProgram) {
+                String input = scanner.nextLine();
+                processInput(input);
+            }
+        }
+
+        private void processInput(String input) {
+            if (input.trim().startsWith("/")) {
+                if (input.toLowerCase().contains("/exit")) {
+                    quitProgram();
+                } else if (input.toLowerCase().contains("/help")) {
+                    helpReadMe();
+                } else {
+                    System.out.println("Unknown command");
+                }
+            } else if (!input.trim().isEmpty()) {
+                try {
+                    String reversePolishInput = inputHandler.shuntingYardAlgorithm(InputHandler.cleanInput(input));
+                    //process the reverse polish
+                    //print answer
+                    reversePolishInterpreter(reversePolishInput);
+
+                } catch (Exception e) {
+                    System.out.println("Invalid expression");
+                }
+            }
+        }
+
+        private void quitProgram() {
+            System.out.println("Bye!");
+            quitProgram = true;
+        }
+
+        private void helpReadMe() {
+            System.out.println("The program calculates the sum and subtraction of numbers");
+        }
+
+        private void reversePolishInterpreter(String input) {
+            //formatted line divided by spaces
+            String[] tokens = input.split(" ");
+            Stack<Integer> stack = new Stack<>();
+            int x;
+            int y;
+    //        int result = 0;
+
+            //no stack operations, only a single input
+            if (tokens.length == 1 && inputHandler.isOperand(tokens[0])) {
+                System.out.println(tokens[0]);
+                return;
+            }
+
+            for (String token : tokens) {
+                if (inputHandler.isOperand(token)) {
+                    stack.push(Integer.parseInt(token));
+                } else {
+                    //pick correct strategy based off operator
+                    setOperation(selectOperator(token));
+                    x = stack.pop();
+                    y = stack.pop();
+
+                    stack.push(operation.calculate(y, x));
+                }
+            }
+            if (stack.size() == 1) {
+                System.out.println(stack.pop());
+            } else {
+                System.out.println("Invalid expression");
+            }
+        }
+
+
+        private Operator selectOperator(String selection) {
+            return inputHandler.selectOperator(selection);
+        }
+
+        private void setOperation(Operator operator) {
+            if (operator != null) {
+                switch (operator) {
+                    case ADDITION:
+                        operation = new AdditionOperation();
+                        break;
+                    case SUBTRACTION:
+                        operation = new SubtractionOperation();
+                        break;
+                    case MULTIPLICATION:
+                        operation = new MultiplicationOperation();
+                        break;
+                    case DIVISION:
+                        operation = new DivisionOperation();
+                        break;
+                    case MODULO:
+                        operation = new ModuloOperation();
+                        break;
+                }
+            }
+        }
+    }
+  learner_created: true
+- name: src/calculator/operations/ExponentiationOperation.java
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/5320#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Wed, 15 Jun 2022 23:30:18 UTC
+record: 5
